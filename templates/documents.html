@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card card-panel">
+  <div class="card-body">
+    <h5 class="card-title mb-3">
+      <i class="bi bi-folder2-open me-2"></i>Documents in Knowledge Base
+    </h5>
+    {% if docs %}
+      <div class="table-responsive">
+        <table class="table table-sm table-dark table-striped align-middle">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Type</th>
+              <th scope="col">Source</th>
+              <th scope="col">Length</th>
+              <th scope="col">Summary?</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for id, source_type, path_or_url, raw_text, summary in docs %}
+              <tr>
+                <td>{{ id }}</td>
+                <td>{{ source_type }}</td>
+                <td class="small text-truncate" style="max-width: 260px;">
+                  {{ path_or_url }}
+                </td>
+                <td>{{ (raw_text or '')|length }}</td>
+                <td>
+                  {% if summary %}
+                    <span class="badge bg-success">Yes</span>
+                  {% else %}
+                    <span class="badge bg-secondary">No</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <form method="post" action="/documents/delete/{{ id }}" onsubmit="return confirm('Delete this document?');">
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted small">
+        No documents stored yet. Upload files or add URLs from the <a href="/">Ask / Upload</a> page.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

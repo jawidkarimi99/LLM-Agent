@@ -1,0 +1,736 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        background: #020617;
+        color: #e5e7eb;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    }
+
+    .page-shell {
+        max-width: 1200px;
+        margin: 24px auto 40px;
+        padding: 0 16px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #e5e7eb;
+    }
+
+    .page-subtitle {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-top: 4px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .nav-btn {
+        border-radius: 999px;
+        padding: 6px 14px;
+        border: 1px solid #1f2933;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .nav-btn.primary {
+        background: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .nav-btn.danger {
+        border-color: #b91c1c;
+        color: #fecaca;
+    }
+
+    .nav-btn:hover {
+        filter: brightness(1.1);
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    /* Upload Card */
+    .card-shell {
+        background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
+        border-radius: 18px;
+        border: 1px solid #1f2933;
+        padding: 18px;
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-header-inline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        gap: 8px;
+    }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .card-caption {
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    .drop-zone {
+        border: 1.5px dashed #374151;
+        border-radius: 14px;
+        padding: 32px 16px;
+        cursor: pointer;
+        transition: 0.15s;
+        background: rgba(15, 23, 42, 0.85);
+        text-align: center;
+    }
+
+    .drop-zone:hover {
+        border-color: #60a5fa;
+        background: rgba(17, 24, 39, 0.95);
+    }
+
+    .drop-zone.dragover {
+        border-color: #38bdf8;
+        background: rgba(15, 23, 42, 1);
+        box-shadow: 0 0 0 1px #38bdf8;
+    }
+
+    .drop-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    .drop-main-text {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .drop-sub-text {
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    .url-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .url-input {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 999px;
+        border: 1px solid #1f2933;
+        background: #020617;
+        color: #e5e7eb;
+        outline: none;
+    }
+
+    .url-input::placeholder {
+        color: #6b7280;
+    }
+
+    .url-input:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Status */
+    .status-line {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 20px;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #4b5563;
+    }
+
+    .status-dot.ok {
+        background: #22c55e;
+    }
+
+    .status-dot.error {
+        background: #ef4444;
+    }
+
+    .spinner {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid #4b5563;
+        border-top-color: #60a5fa;
+        animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Files list */
+    .file-list {
+        margin-top: 16px;
+        max-height: 180px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .file-pill {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #020617;
+        border: 1px solid transparent;
+        font-size: 12px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .file-pill:hover {
+        border-color: #4b5563;
+    }
+
+    .file-pill.active {
+        border-color: #60a5fa;
+        background: #0f172a;
+    }
+
+    /* Preview */
+    .preview-card {
+        min-height: 420px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .preview-frame-wrapper {
+        flex: 1;
+        border-radius: 14px;
+        border: 1px solid #1f2933;
+        background: #020617;
+        overflow: hidden;
+        min-height: 260px;
+    }
+
+    .preview-placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        padding: 16px;
+    }
+
+    .pdf-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #111827;
+    }
+
+    /* QA */
+    .qa-card {
+        border-radius: 14px;
+        border: 1px solid #1f2933;
+        background: #020617;
+        padding: 12px;
+    }
+
+    .qa-input-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .qa-input {
+        flex: 1;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid #1f2933;
+        background: #020617;
+        color: #e5e7eb;
+    }
+
+    .qa-send-btn {
+        border-radius: 999px;
+        padding: 9px 16px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .qa-answer {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #d1d5db;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* Toast */
+    .toast-custom {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        min-width: 220px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #020617;
+        border: 1px solid #1f2937;
+        color: #e5e7eb;
+        display: none;
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        z-index: 9999;
+    }
+
+    .toast-custom.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast-custom.success {
+        border-color: #22c55e;
+    }
+
+    .toast-custom.error {
+        border-color: #ef4444;
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <div class="page-title">LLM RAG Agent</div>
+            <div class="page-subtitle">Upload PDFs / images / text, fetch URLs, preview content, and ask questions with Gemini.</div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn danger" onclick="startNewSession()">🧹 New Session</button>
+            <button class="nav-btn" onclick="window.location.href='/visualize'">📊 Visualize</button>
+            <button class="nav-btn" onclick="window.location.href='/documents'">📁 Documents</button>
+            <button class="nav-btn primary" onclick="window.location.href='/chat'">💬 Chat Mode</button>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="card-shell">
+            <div class="card-header-inline">
+                <div>
+                    <div class="card-title">Ingestion</div>
+                    <div class="card-caption">Drop files or add URLs. Session-based KB.</div>
+                </div>
+            </div>
+
+            <input type="file" id="fileInput" multiple hidden />
+
+            <div id="dropZone" class="drop-zone" onclick="fileInput.click()">
+                <div class="drop-icon">⬆️</div>
+                <div class="drop-main-text">Drop files here or click</div>
+                <div class="drop-sub-text">PDF, TXT, PNG, JPG…</div>
+            </div>
+
+            <!-- URL INPUT + BUTTON -->
+            <div class="url-row">
+                <input id="urlInput" class="url-input" placeholder="Paste a URL…" />
+                <button class="nav-btn primary" onclick="addURL()">Add URL</button>
+            </div>
+
+            <div class="status-line">
+                <div id="statusDot" class="status-dot"></div>
+                <span id="statusText">Idle</span>
+                <div id="statusSpinner" class="spinner" style="margin-left:auto; display:none;"></div>
+            </div>
+
+            <div id="fileList" class="file-list"></div>
+        </div>
+
+        <div class="preview-card">
+            <div class="preview-frame-wrapper">
+                <div id="previewPlaceholder" class="preview-placeholder">
+                    <span>📄</span>
+                    No document selected.
+                </div>
+                <iframe id="pdfFrame" class="pdf-frame" style="display:none;"></iframe>
+                <img id="imagePreview" style="display:none; width:100%; height:100%; object-fit:contain;" />
+            </div>
+
+            <div class="qa-card">
+                <div class="export-buttons">
+                    <button class="qa-send-btn" onclick="exportResults('csv')">📄 CSV</button>
+                    <button class="qa-send-btn" onclick="exportResults('excel')">📊 Excel</button>
+                    <button class="qa-send-btn" onclick="exportResults('docx')">📘 DOCX</button>
+                  </div>
+                <div class="qa-input-row">
+                    <input id="questionInput" class="qa-input" placeholder="Ask a question…" />
+                    <button class="qa-send-btn" onclick="askQuestion()">
+                        <span id="askIcon">➤</span>
+                        <span id="askLabel">Send</span>
+                    </button>
+
+                </div>
+                <div class="qa-answer" id="answerBox" style="display:none;">
+                    <div class="qa-answer-label">Answer</div>
+                    <div id="answerContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast-custom">
+    <div id="toastTitle" class="toast-title"></div>
+    <div id="toastBody" class="toast-body"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ---------------------------
+    // GLOBAL STATE
+    // ---------------------------
+    let uploadedFiles = [];
+    let activeFileIndex = -1;
+    let toastTimeoutId = null;
+
+    const fileInput = document.getElementById("fileInput");
+    const dropZone = document.getElementById("dropZone");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const statusSpinner = document.getElementById("statusSpinner");
+    const fileListEl = document.getElementById("fileList");
+
+    const pdfFrame = document.getElementById("pdfFrame");
+    const previewPlaceholder = document.getElementById("previewPlaceholder");
+    const imagePreview = document.getElementById("imagePreview");
+    const answerBox = document.getElementById("answerBox");
+    const answerContent = document.getElementById("answerContent");
+
+    // ---------------------------
+    // TOAST
+    // ---------------------------
+    function showToast(title, body, type="success"){
+        const toast = document.getElementById("toast");
+        document.getElementById("toastTitle").innerText = title;
+        document.getElementById("toastBody").innerText = body;
+
+        toast.classList.remove("success","error");
+        toast.classList.add(type);
+        toast.classList.add("show");
+
+        if (toastTimeoutId) clearTimeout(toastTimeoutId);
+        toastTimeoutId = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    // ---------------------------
+    // STATUS HELPERS
+    // ---------------------------
+    function setStatusIdle() {
+        statusText.innerText = "Idle";
+        statusSpinner.style.display = "none";
+        statusDot.className = "status-dot";
+    }
+    function setStatusWorking(msg) {
+        statusText.innerText = msg;
+        statusSpinner.style.display = "inline-block";
+        statusDot.className = "status-dot";
+    }
+    function setStatusOk(msg) {
+        statusText.innerText = msg;
+        statusSpinner.style.display = "none";
+        statusDot.className = "status-dot ok";
+    }
+    function setStatusError(msg) {
+        statusText.innerText = msg;
+        statusSpinner.style.display = "none";
+        statusDot.className = "status-dot error";
+    }
+
+    // ---------------------------
+    // FILE DROPS
+    // ---------------------------
+    fileInput.addEventListener("change", () => {
+        if (fileInput.files.length) uploadFiles(fileInput.files);
+    });
+
+    dropZone.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+
+    dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+    });
+
+    // ---------------------------
+    // RENDER FILE LIST
+    // ---------------------------
+    function renderFileList(){
+        fileListEl.innerHTML = "";
+
+        uploadedFiles.forEach((f, idx)=>{
+            const pill = document.createElement("div");
+            pill.className = "file-pill" + (idx === activeFileIndex ? " active" : "");
+            pill.onclick = () => selectFile(idx);
+
+            pill.innerHTML = `
+                <div class="file-pill-left">
+                    <div class="file-icon">${f.type === "pdf" ? "PDF" : f.type === "image" ? "IMG" : f.type === "url" ? "URL" : "TXT"}</div>
+                    <div class="file-name">${f.file}</div>
+                </div>
+                <div class="file-meta">${f.ocr ? "OCR" : "Indexed"}</div>
+            `;
+
+            fileListEl.appendChild(pill);
+        });
+    }
+
+    // ---------------------------
+    // SELECT FILE
+    // ---------------------------
+    function selectFile(idx){
+        activeFileIndex = idx;
+        renderFileList();
+
+        const f = uploadedFiles[idx];
+
+        pdfFrame.style.display = "none";
+        imagePreview.style.display = "none";
+        previewPlaceholder.style.display = "flex";
+
+        if (f.type === "pdf") {
+            pdfFrame.src = f.url;
+            pdfFrame.style.display = "block";
+            previewPlaceholder.style.display = "none";
+        }
+        else if (f.type === "image") {
+            imagePreview.src = f.url;
+            imagePreview.style.display = "block";
+            previewPlaceholder.style.display = "none";
+        }
+    }
+
+    // ---------------------------
+    // FILE UPLOAD
+    // ---------------------------
+    function uploadFiles(files){
+        const formData = new FormData();
+        for (let file of files) formData.append("file", file);
+
+        setStatusWorking("Uploading…");
+
+        fetch("/upload", {
+            method: "POST",
+            body: formData
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            if (!data.success){
+                setStatusError("Upload failed");
+                showToast("Upload failed", data.error || "Unknown error", "error");
+                return;
+            }
+
+            data.results.forEach(r=>{
+                uploadedFiles.push({
+                    file: r.file,
+                    ocr: !!r.ocr,
+                    type: r.type,
+                    url: r.type === "url" ? "#" : "/files/" + encodeURIComponent(r.file)
+                });
+            });
+
+            renderFileList();
+            setStatusOk("Files uploaded ✔");
+            showToast("Uploaded", "Files indexed for this session.");
+        })
+        .catch(err=>{
+            setStatusError("Network error");
+            showToast("Network error", "Could not upload files.", "error");
+        });
+    }
+
+    // ---------------------------
+    // URL INGESTION (BUTTON)
+    // ---------------------------
+    function addURL(){
+        const input = document.getElementById("urlInput");
+        const url = input.value.trim();
+        if (!url) return;
+
+        const formData = new FormData();
+        formData.append("url", url);
+
+        setStatusWorking("Fetching URL…");
+
+        fetch("/fetch_url", { method:"POST", body:formData })
+        .then(r=>r.json())
+        .then(data=>{
+            if (!data.success){
+                setStatusError("URL error");
+                showToast("URL failed", data.error || "Could not fetch URL", "error");
+                return;
+            }
+
+            uploadedFiles.push({
+                file: data.url,
+                ocr: false,
+                type: "url",
+                url: "#"
+            });
+
+            renderFileList();
+            setStatusOk("URL added ✔");
+            showToast("URL added", "The page was fetched and indexed.");
+        })
+        .catch(err=>{
+            setStatusError("Network error");
+            showToast("Network error", "Could not fetch URL.", "error");
+        });
+
+        input.value = "";
+    }
+    window.addURL = addURL;
+
+    // ---------------------------
+    // ASK QUESTION
+    // ---------------------------
+    function askQuestion(){
+        const q = document.getElementById("questionInput").value.trim();
+        if (!q) return;
+
+        document.getElementById("askIcon").innerText = "⏳";
+        document.getElementById("askLabel").innerText = "Thinking…";
+
+        const formData = new FormData();
+        formData.append("question", q);
+
+        fetch("/ask", { method:"POST", body:formData })
+        .then(r=>r.json())
+        .then(data=>{
+            answerBox.style.display = "block";
+            answerContent.innerText = data.answer || "(No answer)";
+            showToast("Answer ready", "Your question was processed.");
+        })
+        .finally(()=>{
+            document.getElementById("askIcon").innerText = "➤";
+            document.getElementById("askLabel").innerText = "Send";
+        });
+    }
+    window.askQuestion = askQuestion;
+    function exportResults(format) {
+    const formData = new FormData();
+    formData.append("format", format);
+
+    fetch("/export_results", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Export failed.");
+        return response.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+
+        let ext = format === "excel" ? "xlsx" : format;
+        a.download = `rag_export.${ext}`;
+
+        a.click();
+    })
+    .catch(err => {
+        showToast("Export failed", err.message, "error");
+    });
+}
+
+    // ---------------------------
+    // RESET SESSION
+    // ---------------------------
+    function startNewSession(){
+        if (!confirm("Clear all uploaded documents?")) return;
+
+        setStatusWorking("Resetting…");
+
+        fetch("/reset_kb", { method:"POST" })
+        .then(r=>r.json())
+        .then(data=>{
+            if (!data.success){
+                setStatusError("Reset failed");
+                showToast("Reset failed", "Could not clear KB.", "error");
+                return;
+            }
+
+            uploadedFiles = [];
+            activeFileIndex = -1;
+            renderFileList();
+
+            pdfFrame.style.display = "none";
+            imagePreview.style.display = "none";
+            previewPlaceholder.style.display = "flex";
+
+            answerBox.style.display = "none";
+            answerContent.innerText = "";
+
+            setStatusOk("Session cleared ✔");
+            showToast("New session", "All documents cleared.");
+        });
+    }
+    window.startNewSession = startNewSession;
+
+    setStatusIdle();
+</script>
+{% endblock %}

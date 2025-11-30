@@ -1,0 +1,96 @@
+:root {
+    --bg-main: #050816;
+    --bg-panel: #111827;
+    --bg-nav: #020617;
+    --border-subtle: #1f2933;
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --accent: #38bdf8;
+    --accent-soft: rgba(56, 189, 248, 0.18);
+  }
+
+  body.bg-body {
+    background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+
+  /* Navbar */
+  .bg-nav {
+    background: linear-gradient(90deg, #020617, #020617 60%, #0f172a);
+  }
+
+  /* Cards / panels */
+  .card-panel {
+    background: radial-gradient(circle at top left, rgba(56,189,248,0.06), transparent 40%),
+                radial-gradient(circle at bottom right, rgba(129,140,248,0.06), transparent 45%),
+                #020617;
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+  }
+
+  .card-panel .card-title {
+    color: var(--text-main);
+  }
+
+  /* QA answer */
+  .qa-answer {
+    min-height: 60px;
+  }
+
+  /* Chunks */
+  .chunk-block {
+    background-color: #020617;
+    border-radius: 8px;
+    padding: 8px 10px;
+    border: 1px solid #1f2933;
+    white-space: pre-wrap;
+  }
+
+  /* Summaries */
+  .summary-item {
+    padding: 6px 8px;
+    border-radius: 10px;
+    background-color: rgba(15,23,42,0.85);
+    border: 1px solid rgba(148,163,184,0.2);
+  }
+
+  /* Chat */
+  .chat-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .chat-bubble {
+    max-width: 90%;
+    border-radius: 16px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .chat-bubble.user {
+    margin-left: auto;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ecfdf3;
+  }
+
+  .chat-bubble.assistant {
+    margin-right: auto;
+    background-color: rgba(15,23,42,0.95);
+    border: 1px solid rgba(148,163,184,0.4);
+  }
+
+  .chat-role {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 3px;
+  }
+
+  /* Tables */
+  .table-dark {
+    --bs-table-bg: #020617;
+    --bs-table-striped-bg: #030712;
+    --bs-table-hover-bg: #020617;
+  }

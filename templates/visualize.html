@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10 mx-auto">
+    <div class="card card-panel mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-1">
+          <i class="bi bi-bar-chart me-2"></i>Knowledge Base Statistics
+        </h5>
+        <small class="text-muted">
+          Basic overview of stored documents in the current session.
+        </small>
+      </div>
+    </div>
+
+    <div class="card card-panel">
+      <div class="card-body">
+        {% if data %}
+          <div class="mb-3 small text-muted">
+            Total documents: <strong>{{ data|length }}</strong>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm table-dark table-striped align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Chars</th>
+                  <th scope="col">Summary chars</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in data %}
+                  <tr>
+                    <td>{{ row.id }}</td>
+                    <td>{{ row.type }}</td>
+                    <td class="small text-truncate" style="max-width: 260px;">
+                      {{ row.source }}
+                    </td>
+                    <td>{{ row.length }}</td>
+                    <td>{{ row.summary_length }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted small">
+            No documents stored yet. Upload files or URLs from the <a href="/">Ask / Upload</a> page.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

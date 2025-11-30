@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-panel mb-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="card-title mb-0">
+            <i class="bi bi-chat-dots me-2"></i>Conversational Chat Mode
+          </h5>
+          <small class="text-muted">
+            Uses the same document RAG backend, but keeps short-term conversation history.
+          </small>
+        </div>
+        <button class="btn btn-sm btn-outline-danger" onclick="clearChat()">
+          <i class="bi bi-trash me-1"></i>Clear Chat
+        </button>
+      </div>
+    </div>
+
+    <div class="card card-panel">
+      <div class="card-body chat-body" id="chatWindow">
+        {% if messages %}
+          {% for m in messages %}
+            {% if m.role == 'user' %}
+              <div class="chat-bubble user">
+                <div class="chat-role"><i class="bi bi-person me-1"></i>You</div>
+                <div>{{ m.content }}</div>
+              </div>
+            {% else %}
+              <div class="chat-bubble assistant">
+                <div class="chat-role"><i class="bi bi-robot me-1"></i>Assistant</div>
+                <div>{{ m.content|safe }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <div class="text-muted small">
+            Start the conversation by asking something about your uploaded documents.
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-transparent">
+        <form onsubmit="sendMessage(event)">
+          <div class="input-group">
+            <input type="text" id="chatInput" class="form-control" placeholder="Ask something...">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-send me-1"></i>Send
+            </button>
+          </div>
+          <div id="chatStatus" class="small text-muted mt-1"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function appendMessage(role, content) {
+  const chatWindow = document.getElementById("chatWindow");
+  const div = document.createElement("div");
+  div.classList.add("chat-bubble", role === "user" ? "user" : "assistant");
+
+  const roleDiv = document.createElement("div");
+  roleDiv.classList.add("chat-role");
+  roleDiv.innerHTML = role === "user"
+    ? '<i class="bi bi-person me-1"></i>You'
+    : '<i class="bi bi-robot me-1"></i>Assistant';
+
+  const contentDiv = document.createElement("div");
+  contentDiv.innerHTML = content;
+
+  div.appendChild(roleDiv);
+  div.appendChild(contentDiv);
+  chatWindow.appendChild(div);
+
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+function sendMessage(event) {
+  event.preventDefault();
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendMessage("user", text);
+  input.value = "";
+  document.getElementById("chatStatus").innerText = "Thinking...";
+
+  const formData = new FormData();
+  formData.append("message", text);
+
+  fetch("/chat/send", { method: "POST", body: formData })
+    .then(r => r.json())
+    .then(res => {
+      document.getElementById("chatStatus").innerText = "";
+      if (res.error) {
+        appendMessage("assistant", `<span class="text-danger">${res.error}</span>`);
+        return;
+      }
+      const msgs = res.messages;
+      const last = msgs[msgs.length - 1];
+      if (last && last.role === "assistant") {
+        appendMessage("assistant", last.content);
+      }
+    })
+    .catch(err => {
+      document.getElementById("chatStatus").innerText = "Error: " + err;
+    });
+}
+
+function clearChat() {
+  fetch("/chat/clear", { method: "POST" })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        document.getElementById("chatWindow").innerHTML =
+          '<div class="text-muted small">Chat cleared. Ask something to start again.</div>';
+      }
+    });
+}
+</script>
+{% endblock %}
